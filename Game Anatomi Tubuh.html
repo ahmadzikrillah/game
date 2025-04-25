@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIGITAL IPA LEARNING</title>
+	<link rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgLtlG49ESf49jwQMeWP0EWysH0szNpXaCWrQ4h7QXrbUYT6xvssldWM-IodSigfYnrpDZ0d5sLN3DkgZKWm-83rdyErw5lL76qD8z3vRjiey7p4NAW5FHPuG4ysi4Gzz_LKv8E5IyieNfNeY08Dbp6Wjpi9rJtllrAE5SebY0Cn3XaL0Rbf7gnWFXvIb0/s320/mts%20attaqwa%2010%20terpadu.png" type="image/x-icon">
+   <style>
+   body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column; /* Atur item menjadi kolom vertikal */
+    justify-content: space-around; /* Distribusikan ruang di sekitar item */
+    align-items: center; /* Tetap tengahkan item secara horizontal */
+    min-height: 100vh;
+    margin: 0;
+    background-color: #1e1e1e; /* Latar belakang body gelap */
+    color: #f8f9fa; /* Warna teks putih/abu-abu terang */
+}
+
+.container {
+    background-color: #333; /* Latar belakang container lebih gelap */
+    padding: 20px; /* Sedikit pengurangan padding untuk layar kecil */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Bayangan lebih gelap */
+    text-align: center;
+    background-color: #2c3e50; /* Alice Blue versi gelap */
+    margin-top: auto; /* Dorong container ke tengah atas */
+    /* Gaya container lainnya */
+}
+
+h1 {
+    color: #f8f9fa; /* Warna teks judul terang */
+    margin-bottom: 15px; /* Sedikit pengurangan margin bottom */
+    font-size: 1.8em; /* Ukuran font lebih kecil untuk judul */
+}
+
+.puzzle-container {
+    display: flex;
+    flex-wrap: wrap; /* Agar gambar organ bisa wrap jika layar terlalu kecil */
+    justify-content: center;
+    gap: 10px; /* Jarak antar gambar organ lebih kecil */
+    margin-bottom: 20px; /* Sedikit pengurangan margin bottom */
+}
+
+.organ-image {
+    width: 70px; /* Ukuran gambar organ lebih kecil */
+    height: 70px;
+    border: 2px solid #555; /* Border lebih gelap */
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #444; /* Latar belakang gambar organ lebih gelap */
+    margin-bottom: 5px; /* Tambahkan sedikit margin bottom antar gambar */
+}
+
+.organ-image img {
+    max-width: 70%;
+    max-height: 70%;
+    filter: brightness(1.2); /* Sedikit cerahkan gambar jika terlalu gelap */
+}
+
+.name-container {
+    display: flex;
+    flex-wrap: wrap; /* Agar nama organ bisa wrap jika layar terlalu kecil */
+    justify-content: center;
+    gap: 10px; /* Jarak antar nama organ lebih kecil */
+    margin-bottom: 15px; /* Sedikit pengurangan margin bottom */
+}
+
+.organ-name {
+    background-color: #555; /* Latar belakang nama organ lebih gelap */
+    color: #f8f9fa; /* Warna teks nama organ terang */
+    border: 1px solid #666; /* Border lebih gelap */
+    border-radius: 5px;
+    padding: 8px 15px; /* Padding lebih kecil */
+    cursor: grab;
+    font-size: 0.9em; /* Ukuran font lebih kecil */
+    margin-bottom: 5px; /* Tambahkan sedikit margin bottom antar nama */
+}
+
+.organ-name:active {
+    cursor: grabbing;
+}
+
+#feedback {
+    font-weight: bold;
+    margin-top: 15px; /* Sedikit pengurangan margin top */
+    font-size: 1em;
+    color: #f8f9fa; /* Warna teks feedback terang */
+}
+
+/* Gaya untuk target drop (area gambar organ) saat di-drag over */
+.organ-image.dragover {
+    border: 2px dashed #a7f0a1; /* Warna hijau terang saat valid drop target */
+}
+
+/* Gaya untuk nama organ yang berhasil di-drop dengan benar */
+.organ-name.dropped {
+    background-color: #a7f0a1;
+    color: #222;
+    border-color: #90ee90;
+    cursor: default;
+}
+
+.organ-name.dropped:active {
+    cursor: default;
+}
+
+/* Mempercantik visual saat dragging */
+.organ-name.dragging {
+    opacity: 0.7;
+    transform: scale(0.95);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Bayangan lebih gelap saat drag */
+    cursor: grabbing;
+}
+
+/* Animasi untuk jawaban benar */
+@keyframes correct-match {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.organ-image.matched,
+.organ-name.dropped {
+    animation: correct-match 0.5s ease-in-out;
+}
+
+.organ-name {
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    cursor: grab;
+}
+
+#timer {
+    font-size: 0.5em; /* Perkecil ukuran font (nilai awal mungkin lebih besar) */
+    font-weight: bold;
+    color: #f8f9fa; /* Ubah warna teks menjadi putih agar kontras dengan highlight */
+    background-color: #555; /* Warna latar belakang highlight (biru versi gelap) */
+    padding: 5px 10px; /* Tambahkan padding agar latar belakang terlihat */
+    border-radius: 5px; /* Tambahkan sudut membulat agar lebih menarik */
+    text-align: center;
+    margin-bottom: 10px;
+    display: inline-block; /* Agar latar belakang hanya selebar teks */
+}
+
+/* Media Query untuk layar dengan lebar maksimum 480px (typicall untuk ponsel potret) */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.6em;
+        margin-bottom: 10px;
+    }
+
+    .puzzle-container {
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .organ-image {
+        width: 50px;
+        height: 50px;
+    }
+
+    .name-container {
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .organ-name {
+        font-size: 0.8em;
+        padding: 6px 10px;
+    }
+
+    #timer {
+        font-size: 0.9em;
+        margin-bottom: 8px;
+    }
+}
+#score {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #e74c3c; /* Warna skor merah yang lebih gelap */
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* ... gaya CSS lainnya ... */
+
+.organ-image {
+    /* Gaya lain untuk gambar organ Anda */
+    opacity: 0; /* Awalnya tidak terlihat */
+    transition: opacity 1s ease-in-out; /* Transisi opacity selama 1 detik */
+}
+
+.organ-image.loaded {
+    opacity: 1; /* Setelah kelas 'loaded' ditambahkan, gambar akan terlihat */
+}
+
+/*..fungsi drag..*/
+.organ-name,
+.organ-image {
+    touch-action: none; /* Mencegah perilaku sentuhan default seperti scrolling atau zooming */
+}
+
+.puzzle-container {
+    display: flex; /* Mengatur gambar organ menjadi sejajar horizontal */
+    justify-content: space-around; /* Spasi merata di antara gambar */
+    align-items: center; /* Mengatur posisi vertikal di tengah */
+    margin-bottom: 20px;
+}
+
+.organ-image {
+    width: 80px; /* Sesuaikan ukuran gambar */
+    height: 80px;
+    border: 2px dashed #777; /* Tanda area drop gelap */
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0; /* Untuk animasi fade-in awal */
+    transition: opacity 1s ease-in-out,
+                transform 0.3s ease-in-out; /* Transisi untuk animasi drag */
+    transform-origin: center center; /* Titik pusat transformasi */
+}
+
+.organ-image img {
+    max-width: 100%;
+    max-height: 100%;
+    filter: brightness(1.1);
+}
+
+.organ-image.loaded {
+    opacity: 1;
+}
+
+.organ-image.dragover {
+    border-color: #64b5f6; /* Warna border saat di-drag over (biru terang) */
+    transform: scale(1.1); /* Efek sedikit membesar saat di-drag over */
+}
+
+.organ-image.matched {
+    border-color: #2e7d32; /* Warna border saat cocok (hijau gelap) */
+    transform: scale(0.9); /* Efek sedikit mengecil saat cocok */
+}
+
+.name-container {
+    display: flex; /* Mengatur nama organ menjadi sejajar horizontal */
+    justify-content: space-around; /* Spasi merata di antara nama */
+    align-items: center;
+    flex-wrap: wrap; /* Jika nama terlalu banyak, akan wrap ke baris baru */
+}
+
+.organ-name {
+    background-color: #444;
+    border: 1px solid #777;
+    border-radius: 5px;
+    padding: 8px 15px;
+    margin: 5px;
+    cursor: grab; /* Mengubah kursor menjadi "grab" saat bisa di-drag */
+    opacity: 1; /* Pastikan terlihat */
+    transition: transform 0.2s ease-in-out,
+                opacity 0.2s ease-in-out; /* Transisi untuk animasi drag */
+    transform-origin: center center;
+}
+
+.organ-name.dragging {
+    opacity: 0.7; /* Sedikit transparan saat di-drag */
+    transform: scale(1.1); /* Efek sedikit membesar saat di-drag */
+    cursor: grabbing; /* Mengubah kursor menjadi "grabbing" saat sedang di-drag */
+}
+
+.organ-name.dropped {
+    opacity: 0.5; /* Sedikit memudar setelah di-drop dengan benar */
+    cursor: default; /* Mengembalikan kursor default */
+    transform: scale(0.9); /* Efek sedikit mengecil setelah di-drop */
+}
+
+.drag-instruction {
+    position: absolute; /* Agar bisa diposisikan di atas elemen lain */
+    z-index: 10; /* Pastikan berada di atas elemen lain */
+    font-size: 1.2em;
+    color: #64b5f6;
+    opacity: 0;
+    animation: showInstruction 2s ease-in-out forwards 3s; /* Muncul setelah 3 detik */
+}
+
+.drag-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 15px solid #81c784;
+    opacity: 0;
+    animation: dragHint 4s ease-in-out forwards 4s; /* Bergerak setelah 4 detik */
+}
+
+@keyframes showInstruction {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes dragHint {
+    0% { opacity: 0; transform: translate(0, 0); }
+    20% { opacity: 1; transform: translate(var(--start-x), var(--start-y)); }
+    60% { opacity: 1; transform: translate(var(--end-x), var(--end-y)); }
+    80% { opacity: 0; transform: translate(calc(var(--end-x) + 10px), calc(var(--end-y) + 10px)); }
+    100% { opacity: 0; transform: translate(0, 0); }
+}
+#user-info {
+    margin-top: 30px;
+    display: none; /* Sembunyikan secara default */
+    background-color: #333;
+    color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+#user-info h2 {
+    color: #f8f9fa;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+#user-info label {
+    color: #eee;
+    display: block;
+    margin-bottom: 5px;
+}
+
+#user-info input[type="text"] {
+    background-color: #444;
+    color: #f8f9fa;
+    border: 1px solid #555;
+    border-radius: 3px;
+    padding: 8px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#user-info button {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#user-info button:hover {
+    background-color: #4cae4c;
+}
+
+#finish-button {
+    display: none; /* Pastikan ini ada */
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    position: fixed; /* Agar tetap di tengah saat di-scroll */
+    left: 50%; /* Geser tepi kiri tombol ke tengah viewport */
+    transform: translateX(-50%); /* Geser tombol ke kiri sebesar setengah lebarnya */
+    bottom: 20px; /* Atur jarak dari bawah (Anda bisa sesuaikan) */
+    z-index: 10; /* Pastikan di atas elemen lain */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+#organ-info {
+    background-color: #444; /* Latar belakang abu-abu gelap */
+    border: 1px solid #555; /* Border tipis abu-abu gelap */
+    border-radius: 5px; /* Sudut membulat */
+    padding: 15px; /* Ruang di dalam kotak */
+    margin-top: 20px; /* Jarak dari elemen di atasnya */
+    text-align: left; /* Teks rata kiri untuk keterbacaan */
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3); /* Efek bayangan tipis gelap */
+    color: #f8f9fa; /* Warna teks terang */
+}
+
+#organ-info h3 {
+    color: #64b5f6; /* Warna biru terang untuk judul nama organ */
+    margin-top: 0; /* Hilangkan margin atas default h3 */
+    margin-bottom: 10px; /* Berikan sedikit jarak antara judul dan fungsi */
+    font-size: 1.2em; /* Ukuran font judul sedikit lebih besar */
+}
+
+#organ-info p {
+    color: #eee; /* Warna teks fungsi yang lebih terang */
+    line-height: 1.6; /* Tinggi baris untuk keterbacaan */
+}
+
+footer {
+    text-align: center; /* Tengahkan teks footer */
+    padding: 10px; /* Berikan sedikit ruang di sekitar teks */
+    background-color: #333; /* Latar belakang abu-abu gelap */
+    color: #f8f9fa; /* Warna teks abu-abu terang */
+    border-top: 1px solid #555; /* Garis tipis di atas footer gelap */
+    font-size: 0.7em; /* Ukuran font terkecil (bisa disesuaikan) */
+    margin-top: 20px; /* Berikan jarak dari konten di atasnya */
+}
+
+footer p {
+    margin: 0; /* Hilangkan margin default pada paragraf */
+}
+</style>
+	
+</head>
+<body>
+   <div class="container">
+    <h1>Mengenal Organ Utama</h1>
+<p>Geser nama nama organ tubuh sesuai dengan gambar diatas!</p>
+    <div id="score">Skor: 0</div>
+    <div id="timer">Waktu: 0</div>
+    <div class="puzzle-container">
+        <div class="organ-image" id="jantung-img" draggable="false">
+            <a href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJDHpUAxS_VeWgxcSrpOzJ2o6tWjhpCOmGuU_-U3jlsi2KbITBUDLyVGDC518znpmD7bI5jxJF4pvHemXC56U_6byr-NxWIXJ5qvCgpTkHSHTzCnUohQFXOIHq8lyOu2V08AMLhIMfpGh0ukJVbZGkRnmEmgP5JiuLeY762vhyphenhyphenhXHKkSilr0MHqzZup-E/s1600-rw/jantung.png" target="_blank">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJDHpUAxS_VeWgxcSrpOzJ2o6tWjhpCOmGuU_-U3jlsi2KbITBUDLyVGDC518znpmD7bI5jxJF4pvHemXC56U_6byr-NxWIXJ5qvCgpTkHSHTzCnUohQFXOIHq8lyOu2V08AMLhIMfpGh0ukJVbZGkRnmEmgP5JiuLeY762vhyphenhyphenhXHKkSilr0MHqzZup-E/s1600-rw/jantung.png" alt="Jantung">
+            </a>
+        </div>
+        <div class="organ-image" id="ginjal-img" draggable="false">
+            <a href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjYnzme2F9fzoKqpG4UG1A1Az-re_yt8oIh38JU7ZDkdM_o4Cr_Ee3j9GSRxc3Py8Am66qTwA3rTwnI_yfZMtJAqWGApl0OCpfB866Q-W80TQuDr9Iyn9gFxlOrocnB1RrydekrhdrajJh2vhSEIgOFwtOdKqokMvV0E9GjStj6YpN0ulQNvQVPNudbyEU/s1600-rw/ginjal.png" target="_blank">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjYnzme2F9fzoKqpG4UG1A1Az-re_yt8oIh38JU7ZDkdM_o4Cr_Ee3j9GSRxc3Py8Am66qTwA3rTwnI_yfZMtJAqWGApl0OCpfB866Q-W80TQuDr9Iyn9gFxlOrocnB1RrydekrhdrajJh2vhSEIgOFwtOdKqokMvV0E9GjStj6YpN0ulQNvQVPNudbyEU/s1600-rw/ginjal.png" alt="Ginjal">
+            </a>
+        </div>
+        <div class="organ-image" id="lambung-img" draggable="false">
+            <a href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjgvRdySdBxZGLqQxRACcHPsx48_hVJb9TzeVl924wZGr8fFP2TFBiSRcHjVPwS0_6scoie7opO9OOAj8J4aJ6ELLV7H3bJLpKvfUXQLBrKJW-LZVB8z3ls6zxGcbX7judbS4IKf3QZIf6r2EQLe3UKrH7s2SH3syXUMOeLVfYXCIAVtFpiTdeJd_jvDRQ/s1600-rw/lambung.png" target="_blank">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjgvRdySdBxZGLqQxRACcHPsx48_hVJb9TzeVl924wZGr8fFP2TFBiSRcHjVPwS0_6scoie7opO9OOAj8J4aJ6ELLV7H3bJLpKvfUXQLBrKJW-LZVB8z3ls6zxGcbX7judbS4IKf3QZIf6r2EQLe3UKrH7s2SH3syXUMOeLVfYXCIAVtFpiTdeJd_jvDRQ/s1600-rw/lambung.png" alt="Lambung">
+            </a>
+        </div>
+        <div class="organ-image" id="otak-img" draggable="false">
+            <a href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJ9HIrhs-M9_RkHdPccDvSp22ytH6cu_UT6gqybuqO0ZDJ7P5zgRtPIuOLWXoL-lWOg1_sltkilqnTeSTWIXuPuzHvnVLG2eemNiMi8BYLIIkIl5W2MSFtJsgiHHYW34wRwgE0OcmIQI5Gk2Xt-e9oAErrFizeoDrTpKFx_Y7qdLFpZI2Yy5J-GrtOR3A/s1600-rw/otak.png" target="_blank">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJ9HIrhs-M9_RkHdPccDvSp22ytH6cu_UT6gqybuqO0ZDJ7P5zgRtPIuOLWXoL-lWOg1_sltkilqnTeSTWIXuPuzHvnVLG2eemNiMi8BYLIIkIl5W2MSFtJsgiHHYW34wRwgE0OcmIQI5Gk2Xt-e9oAErrFizeoDrTpKFx_Y7qdLFpZI2Yy5J-GrtOR3A/s1600-rw/otak.png" alt="Otak">
+            </a>
+        </div>
+    </div>
+
+
+        <div class="name-container">
+            <div class="organ-name" id="nama-jantung" draggable="true" data-organ="jantung">Jantung</div>
+            <div class="organ-name" id="nama-ginjal" draggable="true" data-organ="ginjal">Ginjal</div>
+            <div class="organ-name" id="nama-lambung" draggable="true" data-organ="lambung">Lambung</div>
+            <div class="organ-name" id="nama-otak" draggable="true" data-organ="otak">Otak</div>
+        </div>
+        <div id="feedback"></div>
+        <div id="organ-info"></div>
+		<button id="finish-button" style="display: none; margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer;">Selesai</button>
+
+<div id="user-info" style="margin-top: 30px;">
+    <h2>Isi Data Diri</h2>
+    <label for="name">Nama:</label>
+    <input type="text" id="name" name="name"><br><br>
+    <label for="class">Kelas:</label>
+    <select id="class" name="class">
+        <option value="" disabled selected>Pilih Kelas</option>
+        <option value="Kelas9A">Kelas 9A</option>
+        <option value="Kelas9B">Kelas 9B</option>
+        <option value="KelasE-1">Kelas E-1</option>
+        <option value="KelasE-2">Kelas E-2</option>
+        <option value="KelasICT1">Kelas ICT 1</option>
+        <option value="KelasICT2">Kelas ICT 2</option>
+        <option value="KelasICT3">Kelas ICT 3</option>
+    </select><br><br>
+    <button id="submit-info" style="padding: 10px 20px; font-size: 1em; cursor: pointer;">Kirim</button>
+</div>
+    </div>
+	<footer>
+        <p>(c) dibuat dengan ❤️ oleh ahmad zikrillah@2025_IPA Digital Media</p>
+    </footer>
+    <script>
+	document.addEventListener('DOMContentLoaded', () => {
+    const organNames = document.querySelectorAll('.organ-name');
+    const organImageContainers = document.querySelectorAll('.organ-image'); // Target container gambar (link)
+    const feedbackElement = document.getElementById('feedback');
+    const timerElement = document.getElementById('timer');
+    const scoreElement = document.getElementById('score');
+    const organInfoElement = document.getElementById('organ-info');
+    const finishButton = document.getElementById('finish-button');
+    const userInfoSection = document.getElementById('user-info');
+    const submitInfoButton = document.getElementById('submit-info');
+	
+  
+
+    let draggedElement = null;
+    let timeLeft = 300;
+    let timerInterval;
+    let score = 0;
+    const organData = {
+        jantung: { nama: "Jantung", fungsi: "Organ muskular yang memompa darah ke seluruh tubuh melalui kontraksi berirama, memasok oksigen dan nutrisi ke jaringan dan membuang limbah metabolisme." },
+        ginjal: { nama: "Ginjal", fungsi: "Sepasang organ vital yang menyaring limbah dan kelebihan cairan dari darah untuk menghasilkan urin. Ginjal juga berperan dalam mengatur tekanan darah dan keseimbangan elektrolit." },
+        lambung: { nama: "Lambung", fungsi: "Organ berotot dalam sistem pencernaan yang mencerna makanan dengan bantuan asam lambung dan enzim, mengubahnya menjadi bubur makanan sebelum diteruskan ke usus." },
+        otak: { nama: "Otak", fungsi: "Pusat kendali utama sistem saraf yang mengatur pikiran, memori, emosi, gerakan, sensasi, dan berbagai proses tubuh lainnya. Otak adalah organ yang sangat kompleks dan vital." }
+    };
+
+    // Inisialisasi Audio Context
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playCorrectSound() {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 440;
+        gainNode.gain.value = 0.1;
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
+    }
+
+    function playIncorrectSound() {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = 'square';
+        oscillator.frequency.value = 220;
+        gainNode.gain.value = 0.1;
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.2);
+    }
+
+    function startTimer() {
+        timeLeft = 300; // Tetap 300 detik (5 menit)
+        updateTimerDisplay(); // Panggil fungsi untuk format awal
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay(); // Panggil fungsi untuk memperbarui tampilan
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                feedbackElement.textContent = 'Waktu Habis! Coba lagi.';
+                feedbackElement.style.color = 'red';
+                // Tambahkan logika akhir game jika waktu habis
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60); // Hitung menit
+        const seconds = timeLeft % 60; // Hitung sisa detik
+
+        // Format agar selalu dua digit (tambahkan 0 di depan jika kurang dari 10)
+        const formattedMinutes = String(minutes).padStart(2, '0');
+        const formattedSeconds = String(seconds).padStart(2, '0');
+
+        timerElement.textContent = `Waktu: ${formattedMinutes}:${formattedSeconds}`;
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+    }
+
+    function showOrganInfo(organName) {
+        if (organData[organName]) {
+            organInfoElement.innerHTML = `<h3>${organData[organName].nama}</h3><p>${organData[organName].fungsi}</p>`;
+        } else {
+            organInfoElement.textContent = '';
+        }
+    }
+
+    function handleDragStart(event) {
+        console.log('handleDragStart dipanggil', event.target);
+        draggedElement = event.target;
+        event.dataTransfer.setData('text/plain', event.target.dataset.organ);
+        event.target.classList.add('dragging');
+    }
+
+    function handleDragEnd() {
+        if (draggedElement) {
+            draggedElement.classList.remove('dragging');
+            draggedElement = null;
+        }
+    }
+
+    function handleDragOver(event) {
+        event.preventDefault();
+        this.classList.add('dragover');
+    }
+
+    /*skor*/
+    function handleDrop(event) {
+        event.preventDefault();
+        this.classList.remove('dragover');
+
+        const draggedOrganName = event.dataTransfer.getData('text/plain');
+        const targetOrganId = this.id.split('-')[0];
+        const draggedElement = document.querySelector(`.organ-name[data-organ="${draggedOrganName}"]`);
+        const targetElement = event.target.closest('.organ-image'); // Cari elemen .organ-image terdekat
+
+        console.log("Nama Organ yang Di-drag:", draggedOrganName);
+        console.log("ID Target Gambar:", targetOrganId);
+
+        if (draggedOrganName.trim() === targetOrganId.trim()) {
+            if (draggedElement && !draggedElement.classList.contains('dropped')) {
+                feedbackElement.textContent = 'Benar!';
+                feedbackElement.style.color = 'green';
+                draggedElement.classList.add('dropped');
+                draggedElement.draggable = false;
+                draggedElement.style.cursor = 'default';
+                targetElement.classList.add('matched');
+
+                showOrganInfo(draggedOrganName);
+                playCorrectSound();
+
+                const allMatched = document.querySelectorAll('.organ-image.matched').length === organImageContainers.length;
+                if (allMatched) {
+                    feedbackElement.textContent = 'Selamat! Semua organ sudah cocok.';
+                    stopTimer();
+                    if (finishButton) {
+                        finishButton.style.display = 'block';
+                    }
+                    score = 100;
+                    scoreElement.textContent = `Skor: ${score}`;
+                } else {
+                    score += 10;
+                    scoreElement.textContent = `Skor: ${score}`;
+                }
+            }
+        } else {
+            feedbackElement.textContent = 'Salah. Coba lagi.';
+            feedbackElement.style.color = 'red';
+            showOrganInfo('');
+            playIncorrectSound();
+        }
+    }
+
+    document.addEventListener('click', (event) => {
+        const clickedImage = event.target.closest('.organ-image');
+        if (clickedImage) {
+            const link = clickedImage.querySelector('a');
+            if (link && !clickedImage.classList.contains('dragging')) {
+                window.open(link.href, link.target);
+            }
+        }
+    });
+
+    document.addEventListener('dragstart', (event) => {
+        if (event.target.classList.contains('organ-image')) {
+            event.target.classList.add('dragging');
+        }
+    });
+
+    document.addEventListener('dragend', (event) => {
+        if (event.target.classList.contains('organ-image')) {
+            event.target.classList.remove('dragging');
+        }
+    });
+
+    organNames.forEach(name => {
+        name.addEventListener('dragstart', handleDragStart);
+        name.addEventListener('dragend', handleDragEnd);
+    });
+
+    organImageContainers.forEach(container => {
+        container.addEventListener('dragover', handleDragOver);
+        container.addEventListener('drop', handleDrop);
+		container.classList.add('loaded');
+        // Tidak perlu lagi menambahkan 'loaded' di sini karena gambar sudah langsung ada
+    });
+
+    startTimer();
+    showOrganInfo('');
+
+    // Event listener untuk tombol selesai
+    if (finishButton && userInfoSection) {
+        finishButton.addEventListener('click', () => {
+            finishButton.style.display = 'none'; // Sembunyikan tombol setelah diklik
+            userInfoSection.style.display = 'block'; // Tampilkan bagian info pengguna
+            userInfoSection.scrollIntoView({ behavior: 'smooth' }); // Scroll ke bagian info (opsional)
+        });
+    }
+    // Event listener untuk tombol kirim
+    if (submitInfoButton) {
+        submitInfoButton.addEventListener('click', () => {
+            const nameInput = document.getElementById('name');
+            const classInput = document.getElementById('class');
+
+            const nama = nameInput.value.trim();
+            const kelas = classInput.value.trim();
+
+            if (nama !== '' && kelas !== '') {
+                // Redirect ke URL yang diinginkan
+                window.location.href = 'http://blogger.com';
+            } else {
+                alert('Mohon isi nama dan kelas terlebih dahulu.');
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>

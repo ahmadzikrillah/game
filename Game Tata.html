@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Tata Surya - Orbit</title>
+  <link rel="">
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  color: #000;
+  font-family: Arial, sans-serif;
+  background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj_jP7E9Mf4lm-5QGWc64bEC1xp1KhnLLRGOZ45MHSUOx5_prugOm2xAV-dAN0yhsdFl3XCfjJ6q6DYDwgQoVm84VTbruesPyHwLYhao5D4KtrU3l04pnkSY-6Bvvzaq6YamFgwAz4_1VnwkazWYwC_HXioNjiSitA0yGYcWh-gWHSCoXCmlt4BrPBHYFE/s16000/langit%20malam.jpg');
+ 
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#timer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 12px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: white;
+  z-index: 10;
+}
+
+
+#orbit-area {
+  position: relative;
+  width: 90vmin;
+  height: 90vmin;
+  margin: 2rem auto;
+  z-index: 1;
+}
+
+.sun {
+  font-size: 80px; /* Ubah sesuai ukuran yang diinginkan */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+
+/* Orbit lingkaran */
+.orbit-circle {
+  position: absolute;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: spin 60s linear infinite;
+}
+
+
+
+.orbit-1 { width: 20vmin; height: 20vmin; }
+.orbit-2 { width: 30vmin; height: 30vmin; }
+.orbit-3 { width: 40vmin; height: 40vmin; }
+.orbit-4 { width: 50vmin; height: 50vmin; }
+.orbit-5 { width: 60vmin; height: 60vmin; }
+.orbit-6 { width: 70vmin; height: 70vmin; }
+.orbit-7 { width: 80vmin; height: 80vmin; }
+.orbit-8 { width: 90vmin; height: 90vmin; }
+
+/* Drop zone (slot) */
+.orbit-slot {
+  position: absolute;
+  width: 4vmin;
+  height: 4vmin;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 2px dashed white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Posisi setiap slot mengikuti rotasi dan transform-origin */
+.slot-1 { top: 50%; left: 50%; transform: rotate(0deg) translateX(10vmin); transform-origin: center; }
+.slot-2 { top: 50%; left: 50%; transform: rotate(45deg) translateX(15vmin); transform-origin: center; }
+.slot-3 { top: 50%; left: 50%; transform: rotate(90deg) translateX(20vmin); transform-origin: center; }
+.slot-4 { top: 50%; left: 50%; transform: rotate(135deg) translateX(25vmin); transform-origin: center; }
+.slot-5 { top: 50%; left: 50%; transform: rotate(180deg) translateX(30vmin); transform-origin: center; }
+.slot-6 { top: 50%; left: 50%; transform: rotate(225deg) translateX(35vmin); transform-origin: center; }
+.slot-7 { top: 50%; left: 50%; transform: rotate(270deg) translateX(40vmin); transform-origin: center; }
+.slot-8 { top: 50%; left: 50%; transform: rotate(315deg) translateX(45vmin); transform-origin: center; }
+
+
+
+/* Planet List */
+#planet-list {
+  margin-top: 2rem;
+  text-align: center;
+  position: absolute; /* Membuatnya keluar dari aliran normal dokumen */
+  top: 680px; /* Sesuaikan nilai ini untuk menggeser ke atas */
+  transform: translateX(-50%); /* Koreksi pemusatan */
+  z-index: 10; /* Pastikan berada di atas orbit area (nilai z-index orbit area harus lebih rendah atau default) */
+  background-color: rgba(0, 0, 0, 0.5); /* Contoh background agar terlihat */
+  padding: 10px; /* Contoh padding */
+  border-radius: 8px; /* Contoh border radius */
+  left: 50%; /* Pusatkan horizontal (jika diinginkan) */
+}
+#planet-area {
+  display: grid;
+  grid-template-columns: repeat(8, auto);
+  gap: 10px; /* Ubah bagian ini */
+  justify-content: center;
+}
+#planet-info {
+    position: absolute;
+    top: 50%; /* Pusatkan secara vertikal */
+    left: 50%; /* Pusatkan secara horizontal */
+    transform: translate(-50%, -50%); /* Koreksi posisi tengah */
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+    z-index: 25; /* Pastikan berada di atas matahari (z-index matahari adalah 3) */
+    font-size: 1.2em; /* Ukuran font agar mudah dibaca */
+    text-align: center; /* Pusatkan teks di dalam info box */
+}
+/* Bungkus tiap planet di dalam slot */
+.planet-slot {
+    width: 6vmin;
+    height: auto; /* Biarkan tinggi menyesuaikan konten */
+    display: flex;
+    flex-direction: column; /* Atur elemen di dalamnya menjadi kolom (atas ke bawah) */
+    align-items: center; /* Pusatkan item secara horizontal */
+    justify-content: center; /* Pusatkan item secara vertikal (opsional, tergantung desain) */
+}
+
+/* Planet image */
+.planet {
+    width: 6vmin;
+    height: 6vmin;
+    border-radius: 50%;
+    border: 2px solid white;
+    cursor: grab;
+    margin-bottom: 5px; /* Berikan sedikit ruang antara gambar dan nama */
+}
+.planet-name {
+    font-size: 0.8em; /* Ukuran font untuk nama planet */
+    color: white;
+    text-align: center;
+    word-break: break-word; /* Jika nama terlalu panjang, akan diputus ke baris baru */
+}
+
+/* Planet disembunyikan setelah di-drop agar posisi slot tetap */
+.planet.hidden {
+  visibility: hidden;
+}
+
+/* Tombol Selesai */
+#submitBtn {
+  margin-top: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #222;
+  color: white;
+  border: 1px solid white;
+  border-radius: 8px;
+  cursor: pointer;
+  display: block; /* Membuatnya menjadi block-level element */
+  margin-left: auto;
+  margin-right: auto; /* Memberikan margin otomatis untuk pemusatan horizontal */
+  text-align: center; /* Memusatkan teks di dalam tombol (opsional) */
+}
+
+#submitBtn:hover {
+  background-color: #444;
+}
+
+/* Orbit animasi */
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Efek animasi jika jawaban benar */
+@keyframes bounce {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.planet.correct {
+  animation: bounce 0.4s ease;
+}
+
+.planet-names {
+  margin-top: 8px; /* Sesuaikan nilai ini */
+  font-size: 14px;
+  padding: 0 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Responsif untuk layar kecil (≤ 600px) */
+@media (max-width: 600px) {
+  .planet {
+    width: 10vw;
+    height: 10vw;
+  }
+
+  .orbit-slot {
+    width: 6vw;
+    height: 6vw;
+  }
+
+  .planet-option {
+    width: 60px;
+  }
+
+  .sun {
+    font-size: 60px;
+  }
+
+  #orbit-area {
+    width: 90vw;
+    height: 90vw;
+  }
+
+  .planet-names {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+  
+  #planet-info {
+    /* Gaya dasar sudah di HTML, tambahkan jika ada perubahan lebih lanjut */
+}
+
+#result-screen {
+    position: fixed; /* Agar tetap di tengah layar saat di-scroll */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8); /* Latar belakang gelap semi-transparan */
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 30; /* Pastikan di atas elemen lain */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); /* Efek bayangan */
+}
+
+#result-screen h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 2em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* Efek bayangan pada judul */
+}
+
+#result-screen p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+#result-screen button {
+    background-color: #4CAF50; /* Warna hijau cerah */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease; /* Efek transisi hover */
+}
+
+#result-screen button:hover {
+    background-color: #45a049; /* Warna hijau lebih gelap saat hover */
+}
+
+</style>
+</head>
+<body>
+  <div id="start-screen">
+    <h1>Susun Tata Surya 🪐</h1>
+    <input type="text" id="student-name" placeholder="Nama Siswa">
+    <select id="student-class">
+      <option value="">Pilih Kelas</option>
+      <option value="9A">9A</option>
+      <option value="9B">9B</option>
+      <option value="9E1">9E1</option>
+      <option value="9E2">9E2</option>
+      <option value="9ICT1">9ICT1</option>
+      <option value="9ICT2">9ICT2</option>
+      <option value="9ICT3">9ICT3</option>
+    </select>
+    <button id="startBtn">Mulai</button>
+
+  </div>
+
+  <div id="game-screen" style="display: none;">
+    <p id="timer">Waktu: 180 detik</p>
+    <h2>Geser Gambar Planet untuk menempati lintasan Orbit yang sesuai</h2>
+
+    <div id="orbit-area">
+      <div class="orbit-circle orbit-1"></div>
+      <div class="orbit-circle orbit-2"></div>
+      <div class="orbit-circle orbit-3"></div>
+      <div class="orbit-circle orbit-4"></div>
+      <div class="orbit-circle orbit-5"></div>
+      <div class="orbit-circle orbit-6"></div>
+      <div class="orbit-circle orbit-7"></div>
+      <div class="orbit-circle orbit-8"></div>
+      <div class="sun">🌞</div>
+
+      <div class="orbit-slot slot-1 drop-zone" data-position="Merkurius"></div>
+      <div class="orbit-slot slot-2 drop-zone" data-position="Venus"></div>
+      <div class="orbit-slot slot-3 drop-zone" data-position="Bumi"></div>
+      <div class="orbit-slot slot-4 drop-zone" data-position="Mars"></div>
+      <div class="orbit-slot slot-5 drop-zone" data-position="Jupiter"></div>
+      <div class="orbit-slot slot-6 drop-zone" data-position="Saturnus"></div>
+      <div class="orbit-slot slot-7 drop-zone" data-position="Uranus"></div>
+      <div class="orbit-slot slot-8 drop-zone" data-position="Neptunus"></div>
+    </div>
+    <div id="planet-list">
+    <div id="planet-area">
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhvvOzD7KcL_epCxF0CesqHYNDaCCTtF2nKnpMD6SdQcxJbh_RbhEA1DR0gSeezY9djcdWokaCgV7r1qbcQGji_1FiRoJ9RIsJKJS_v9J2DOLTJVzyqF3VhFiTA9Ei65rH1TUBnOxtYOQ06YQj0_nYNPBqiaUwkIDrjiUVD6eNnY4RDHnVZ-TZhjitxws0/s1600-rw/Merkurius.jpg" alt="Merkurius" draggable="true" class="planet" data-planet="Merkurius" />
+            <div class="planet-name">Merkurius</div>
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjt6BtX4yfa6wxAO_930gF8m2oUSrRX0T8SaqV3EXxeqEYThVP-0tj0GCfgRcl7LOR5I41gqnrj2ryCy9b9LChdeIEH1XR9vP15EOsnF1TRjy9B5-RtzZ08n28pEh81O0NtMX0LHITHbi7XZws7o1-wv04cEGkOdxMvXEdD8UrKKfraiiQro2AqB3MtWZ4/s1600-rw/venus.jpg" alt="Venus" draggable="true" class="planet" data-planet="Venus" />
+            <div class="planet-name">Venus</div>
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjheHtSumsqI_zQ5TLn-KBJ5NqBZ1MJAyklaGSqiBu9ArPnELrTLd126CSx6Tvuauvgq4_RplitjSu0dtAqcB1GFhpe6V_PDeKJUcufizECWt_s50vdjGegLuO5MnOAP2XiPkQBQSJUg-e6NANr9iVS0IUeBPKgukmlrP9Kp0Opx9Xmw_bVP8w4ykN69ds/s1600-rw/bumi.jpg" alt="Bumi" draggable="true" class="planet" data-planet="Bumi" />
+            <div class="planet-name">Bumi</div>
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjJ8pqzL5sWsGq6svkd20uWWPTMKf7U3E5LRcPvE9lSpW27S1El9olJHXHIYcQEChO11FN1EcrNfHaetGdWr31hqF_wLh0ltsRZTrdiE9-zVnjOLg6VP1gBg0-hTEwkjCRKYgeIDB1TE9efmUOCfhP5l4JjOKqfH2L-k1hnGpj6LkaGcSql6i3yh88bLCc/s1600-rw/mars.jpg" alt="Mars" draggable="true" class="planet" data-planet="Mars" />
+            <div class="planet-name">Mars</div>
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg9oDrJmN9hZL1ni8EQwRC_7hvHzEdEyLoTQrosPUevfUn0WxGWo2v5GTIYVSi4V7XUEMvQU59mc4eDA-_TU0kHoI8z6zFJSLKqIIwSWV1eXjE1gWWRS4qeqmzxioJi9h1y2Dw0jgdQSNKNiNB21jer4WA_bEhnp75VsAMnZllHT2aBlbgoBnSg70JXBDw/s1600-rw/jupiter.jpg" alt="Jupiter" draggable="true" class="planet" data-planet="Jupiter" />
+            <div class="planet-name">Jupiter</div>
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj9jyTqZMUYmYm6reGIYgqKDYoIybGyJ7EVIh9TQVhgAU85CEC8Boibn4-eMpJo7EBQCfy5K_cc-v2J6cPSxldsD1hOO4tsc1-JPWZk36c8y6VDqYSiRzblPSZEd6I1NbExeEDlBqqhYkcK5HUlQmZOD30K79ZFAsb55yeWQjMInuZz1cSLaSVNbBFyv4s/s1600-rw/saturnus.jpg" alt="Saturnus" draggable="true" class="planet" data-planet="Saturnus" />
+            <div class="planet-name">Saturnus</div>
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjMc7Vnvw9Sk_tYnB8Y_4llXk2OxraeZcvA0bbHSdh1IT_Jhtj54xpzGnf8Yo8_nvcZgYTPK9vIBZAUCALbjqNKxYcf7d3Ierliwe3MzffjWcgqfgmISOtka7oQfwcgLRhwk4IOaLurikQwueJOzc4UvY_-acauAE-jDU85rFr-l_DI-YJef6KCcX8ypdQ/s1600-rw/uranus.jpg" alt="Uranus" draggable="true" class="planet" data-planet="Uranus" />
+            <div class="planet-name">Uranus</div>
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJi0ptXIT4gAfKWFblRD8G5t8xu47BlVoqyHbx996FQAFOsnNQFJ82R2m4pd_Ddg1X0h5YfFd60PGmSKpM_3SOmp6tjJs-G7bTUDeOPTQ1IOdiAVeSpy821fIG3t64qFuH8CumHklvGst7eC4VRc2ecvKIXpuoVWSSI07vPf3oXCPkAE38gcRvvO5TRp0/s1600-rw/neptunus.jpg" alt="Neptunus" draggable="true" class="planet" data-planet="Neptunus" />
+            <div class="planet-name">Neptunus</div>
+        </div>
+    </div>
+</div>  
+    <div class="planet-names">
+      Merkurius | Venus | Bumi | Mars | Jupiter | Saturnus | Uranus | Neptunus
+    </div>
+    <button id="submitBtn">Selesai</button> </div>
+	<div id="planet-info" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.7); color: white; padding: 10px; border-radius: 5px; display: none; z-index: 25; font-size: 1.2em; text-align: center;"></div>
+	</div>
+  <div id="result-screen" style="display: none;">
+    <h2>Lihat Skor Kamu :</h2>
+    <p id="result-name"></p>
+    <p id="result-class"></p>
+    <p id="result-score"></p>
+    <button onclick="location.reload()">Ulangi Game</button>
+  </div>
+  <footer style="font-size: 10px; text-align: center; margin-top: 20px;">
+    &copy; dibuat dengan <span style="color: red;">&#10084;</span> oleh Ahmad Zikrillah @Digital Learning_2025
+  </footer>
+
+  <script src=""></script>
+<script>// Mengambil elemen-elemen yang dibutuhkan
+const startBtn = document.getElementById("startBtn");
+const startScreen = document.getElementById("start-screen");
+const gameScreen = document.getElementById("game-screen");
+const resultScreen = document.getElementById("result-screen");
+const submitBtn = document.getElementById("submitBtn");
+const timerDisplay = document.getElementById("timer");
+const planetList = document.getElementById("planet-list");
+const planetArea = document.getElementById("planet-area"); // Tambahkan ini untuk memeriksa jumlah planet
+const dropZones = document.querySelectorAll(".drop-zone");
+const resultName = document.getElementById("result-name");
+const resultClass = document.getElementById("result-class");
+const resultScore = document.getElementById("result-score");
+const planetInfoDisplay = document.getElementById("planet-info");
+const planetInformations = {
+    "Merkurius": "Planet terkecil dan terdekat dengan Matahari. Permukaannya penuh kawah.",
+    "Venus": "Planet terpanas dengan atmosfer tebal beracun. Berotasi terbalik dari planet lain.",
+    "Bumi": "Satu-satunya planet yang diketahui memiliki kehidupan. Memiliki satu satelit alami, Bulan.",
+    "Mars": "Planet merah dengan gunung berapi raksasa dan lembah yang dalam. Memiliki dua bulan kecil.",
+    "Jupiter": "Planet terbesar di Tata Surya, didominasi oleh gas. Terkenal dengan Bintik Merah Besar.",
+    "Saturnus": "Dikenal dengan cincinnya yang spektakuler, terbuat dari es dan batuan.",
+    "Uranus": "Planet es raksasa yang berotasi pada sisinya.",
+    "Neptunus": "Planet terjauh dari Matahari, berwarna biru dengan angin terkuat di Tata Surya."
+};
+// menambahkan nada suara
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+//bunyi benar
+function playCorrectSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 440; // Nada "ting" - bisa disesuaikan
+
+    gainNode.gain.value = 0.5;
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.2);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.2);
+}
+// jika salah
+function playIncorrectSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.type = 'square';
+    oscillator.frequency.value = 220; // Nada "teeeet" - bisa disesuaikan
+
+    gainNode.gain.value = 0.4;
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.8);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.8);
+}
+
+let timeLeft = 180;
+let timerInterval;
+
+// Sembunyikan tombol Selesai saat awal
+submitBtn.style.display = "none";
+
+// Fungsi untuk memeriksa apakah semua dropzone terisi
+function checkAllZonesFilled() {
+    return Array.from(dropZones).every(zone => zone.children.length > 0);
+}
+
+// Fungsi untuk memeriksa apakah semua planet sudah di-drag (tidak ada lagi di planet-area)
+function checkAllPlanetsDropped() {
+    return planetArea.children.length === 0;
+}
+
+// Tombol Start Game
+startBtn.addEventListener("click", () => {
+    const name = document.getElementById("student-name").value;
+    const kelas = document.getElementById("student-class").value;
+
+    if (!name || !kelas) {
+        alert("Nama dan Kelas harus diisi!");
+        return;
+    }
+
+    startScreen.style.display = "none";
+    gameScreen.style.display = "block";
+
+    // Reset timer
+    timeLeft = 180;
+    timerDisplay.textContent = `Waktu: ${timeLeft} detik`;
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Waktu: ${timeLeft} detik`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            alert("Waktu habis! Anda akan dikembalikan ke hasil akhir.");
+            showResult();
+        }
+    }, 1000);
+
+    // Reset tampilan planet di area awal (jika game diulang)
+    planetArea.innerHTML = `
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhvvOzD7KcL_epCxF0CesqHYNDaCCTtF2nKnpMD6SdQcxJbh_RbhEA1DR0gSeezY9djcdWokaCgV7r1qbcQGji_1FiRoJ9RIsJKJS_v9J2DOLTJVzyqF3VhFiTA9Ei65rH1TUBnOxtYOQ06YQj0_nYNPBqiaUwkIDrjiUVD6eNnY4RDHnVZ-TZhjitxws0/s1600-rw/Merkurius.jpg" alt="Merkurius" draggable="true" class="planet" data-planet="Merkurius" />
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjt6BtX4yfa6wxAO_930gF8m2oUSrRX0T8SaqV3EXxeqEYThVP-0tj0GCfgRcl7LOR5I41gqnrj2ryCy9b9LChdeIEH1XR9vP15EOsnF1TRjy9B5-RtzZ08n28pEh81O0NtMX0LHITHbi7XZws7o1-wv04cEGkOdxMvXEdD8UrKKfraiiQro2AqB3MtWZ4/s1600-rw/venus.jpg" alt="Venus" draggable="true" class="planet" data-planet="Venus" />
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjheHtSumsqI_zQ5TLn-KBJ5NqBZ1MJAyklaGSqiBu9ArPnELrTLd126CSx6Tvuauvgq4_RplitjSu0dtAqcB1GFhpe6V_PDeKJUcufizECWt_s50vdjGegLuO5MnOAP2XiPkQBQSJUg-e6NANr9iVS0IUeBPKgukmlrP9Kp0Opx9Xmw_bVP8w4ykN69ds/s1600-rw/bumi.jpg" alt="Bumi" draggable="true" class="planet" data-planet="Bumi" />
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjJ8pqzL5sWsGq6svkd20uWWPTMKf7U3E5LRcPvE9lSpW27S1El9olJHXHIYcQEChO11FN1EcrNfHaetGdWr31hqF_wLh0ltsRZTrdiE9-zVnjOLg6VP1gBg0-hTEwkjCRKYgeIDB1TE9efmUOCfhP5l4JjOKqfH2L-k1hnGpj6LkaGcSql6i3yh88bLCc/s1600-rw/mars.jpg" alt="Mars" draggable="true" class="planet" data-planet="Mars" />
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg9oDrJmN9hZL1ni8EQwRC_7hvHzEdEyLoTQrosPUevfUn0WxGWo2v5GTIYVSi4V7XUEMvQU59mc4eDA-_TU0kHoI8z6zFJSLKqIIwSWV1eXjE1gWWRS4qeqmzxioJi9h1y2Dw0jgdQSNKNiNB21jer4WA_bEhnp75VsAMnZllHT2aBlbgoBnSg70JXBDw/s1600-rw/jupiter.jpg" alt="Jupiter" draggable="true" class="planet" data-planet="Jupiter" />
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj9jyTqZMUYmYm6reGIYgqKDYoIybGyJ7EVIh9TQVhgAU85CEC8Boibn4-eMpJo7EBQCfy5K_cc-v2J6cPSxldsD1hOO4tsc1-JPWZk36c8y6VDqYSiRzblPSZEd6I1NbExeEDlBqqhYkcK5HUlQmZOD30K79ZFAsb55yeWQjMInuZz1cSLaSVNbBFyv4s/s1600-rw/saturnus.jpg" alt="Saturnus" draggable="true" class="planet" data-planet="Saturnus" />
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjMc7Vnvw9Sk_tYnB8Y_4llXk2OxraeZcvA0bbHSdh1IT_Jhtj54xpzGnf8Yo8_nvcZgYTPK9vIBZAUCALbjqNKxYcf7d3Ierliwe3MzffjWcgqfgmISOtka7oQfwcgLRhwk4IOaLurikQwueJOzc4UvY_-acauAE-jDU85rFr-l_DI-YJef6KCcX8ypdQ/s1600-rw/uranus.jpg" alt="Uranus" draggable="true" class="planet" data-planet="Uranus" />
+        </div>
+        <div class="planet-slot">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJi0ptXIT4gAfKWFblRD8G5t8xu47BlVoqyHbx996FQAFOsnNQFJ82R2m4pd_Ddg1X0h5YfFd60PGmSKpM_3SOmp6tjJs-G7bTUDeOPTQ1IOdiAVeSpy821fIG3t64qFuH8CumHklvGst7eC4VRc2ecvKIXpuoVWSSI07vPf3oXCPkAE38gcRvvO5TRp0/s1600-rw/neptunus.jpg" alt="Neptunus" draggable="true" class="planet" data-planet="Neptunus" />
+        </div>
+    `;
+
+    // Sembunyikan kembali tombol Selesai saat game baru dimulai
+    submitBtn.style.display = "none";
+});
+
+// Fungsi untuk menunjukkan hasil akhir
+function showResult() {
+    const name = document.getElementById("student-name").value;
+    const kelas = document.getElementById("student-class").value;
+    let score = 0;
+
+    dropZones.forEach(zone => {
+        const expected = zone.dataset.position;
+        const placed = zone.firstChild?.dataset.planet;
+
+        if (expected === placed) {
+            score++;
+        }
+    });
+
+    const nilai = (score * 100 / 8).toFixed(0);
+
+    resultName.textContent = `Nama: ${name}`;
+    resultClass.textContent = `Kelas: ${kelas}`;
+    resultScore.textContent = `Skor Anda: ${nilai}`;
+
+    gameScreen.style.display = "none";
+    resultScreen.style.display = "block";
+}
+
+// Event untuk menangani drag-and-drop planet
+planetList.addEventListener("dragstart", (event) => {
+    event.dataTransfer.setData("planet", event.target.dataset.planet);
+});
+
+// Bagian mengatur fungsi tambahan (sudah diperbaiki tanpa duplikasi)
+dropZones.forEach(zone => {
+    zone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+    });
+
+    zone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        const planetName = event.dataTransfer.getData("planet");
+        const planetImage = document.querySelector(`[data-planet='${planetName}']`);
+        const expectedPlanet = zone.dataset.position;
+
+        if (zone.children.length === 0) {
+            zone.appendChild(planetImage);
+
+            // Periksa apakah planet yang di-drop sesuai dengan orbit yang benar
+            if (planetName === expectedPlanet) {
+                // Tampilkan informasi planet
+                planetInfoDisplay.textContent = planetInformations[planetName] || "Informasi tidak tersedia.";
+                planetInfoDisplay.style.display = "block";
+                playCorrectSound(); // Panggil suara benar
+
+                // Sembunyikan informasi setelah 5 detik
+                setTimeout(() => {
+                    planetInfoDisplay.style.display = "none";
+                }, 5000);
+            } else if (planetName !== expectedPlanet) {
+                playIncorrectSound(); // Panggil suara salah jika tidak benar
+            }
+
+            // Periksa apakah semua dropzone terisi setelah setiap drop
+            if (checkAllZonesFilled() || checkAllPlanetsDropped()) {
+                submitBtn.style.display = "block";
+            }
+        }
+    });
+});
+
+// Tombol Selesai untuk menampilkan hasil
+submitBtn.addEventListener("click", () => {
+    showResult();
+});
+
+// Event listener untuk mengulang game (opsional, jika Anda ingin mereset tampilan planet)
+const repeatBtn = document.querySelector('#result-screen button');
+if (repeatBtn) {
+    repeatBtn.addEventListener('click', () => {
+        resultScreen.style.display = 'none';
+        startScreen.style.display = 'block';
+        // Reset tampilan planet di area awal (sudah dilakukan di startBtn listener)
+        submitBtn.style.display = 'none'; // Pastikan tombol Selesai kembali tersembunyi
+    });
+}
+</script>
+</body>
+</html>
